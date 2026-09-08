@@ -1,0 +1,37 @@
+# NxK Greetings — robots.txt
+# Public marketing/creator pages are crawlable. Personal greetings, the
+# creator dashboard and the admin panel are private surfaces (they also set
+# <meta name="robots" content="noindex"> per-route), so crawlers are asked
+# to stay out entirely.
+
+User-agent: *
+Allow: /
+Disallow: /g/
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /share
+Disallow: /generate
+Disallow: /preview
+Disallow: /personalize
+Disallow: /theme
+Disallow: /animation
+Disallow: /music
+
+# AI training bots: this is a personal-greetings platform — content behind
+# /g/ is user-generated and often intimate. Please do not train on it.
+User-agent: GPTBot
+Disallow: /
+User-agent: ChatGPT-User
+Disallow: /
+User-agent: ClaudeBot
+Disallow: /
+User-agent: Claude-Web
+Disallow: /
+User-agent: anthropic-ai
+Disallow: /
+User-agent: Google-Extended
+Disallow: /
+User-agent: CCBot
+Disallow: /
+User-agent: PerplexityBot
+Disallow: /

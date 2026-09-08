@@ -1,0 +1,180 @@
+import type { Occasion, OccasionId } from '@/types'
+
+export const OCCASIONS: Occasion[] = [
+  {
+    id: 'birthday',
+    name: 'Birthday',
+    emoji: '🎂',
+    tagline: 'Candles, confetti and a cinematic surprise',
+    gradient: ['#f472b6', '#a855f7'],
+    accent: '#f472b6',
+    suggestions: [
+      'Happy Birthday! May this year bring you closer to every dream you chase. 🎂',
+      'Another trip around the sun, and you shine brighter every time. ✨',
+      'Wishing you a day as wonderful as the smile you give everyone. 🎉',
+      'Happy Birthday! Eat cake, laugh loud, and let today be about YOU. 🍰',
+    ],
+  },
+  {
+    id: 'love',
+    name: 'Love',
+    emoji: '❤️',
+    tagline: 'Say it with hearts and starlight',
+    gradient: ['#fb7185', '#e11d48'],
+    accent: '#fb7185',
+    suggestions: [
+      'In a sky full of stars, I’d still search for you. ❤️',
+      'Every love story is beautiful, but ours is my favorite. ✨',
+      'You are my today and all of my tomorrows. 💫',
+      'I fell for you once, and I keep falling every single day. 🌹',
+    ],
+  },
+  {
+    id: 'friendship',
+    name: 'Friendship',
+    emoji: '🤝',
+    tagline: 'For the ones who feel like home',
+    gradient: ['#38bdf8', '#6366f1'],
+    accent: '#38bdf8',
+    suggestions: [
+      'Friends like you make life’s ordinary days feel like festivals. 🎊',
+      'We don’t fit in, and that’s exactly why we fit together. 🤝',
+      'Thanks for being my unpaid therapist and full-time partner in crime. 😄',
+      'Side by side or miles apart, we’re always connected by heart. 💙',
+    ],
+  },
+  {
+    id: 'congratulations',
+    name: 'Congratulations',
+    emoji: '🏆',
+    tagline: 'Celebrate their big win',
+    gradient: ['#fbbf24', '#f97316'],
+    accent: '#fbbf24',
+    suggestions: [
+      'You did it! All those late nights finally paid off. 🏆',
+      'Congratulations! This is just the beginning of your highlight reel. 🎉',
+      'So proud of you — the world is starting to see what we always knew. 🌟',
+      'Champions aren’t made in a day, and you proved it. 👏',
+    ],
+  },
+  {
+    id: 'anniversary',
+    name: 'Anniversary',
+    emoji: '💞',
+    tagline: 'Another year of us',
+    gradient: ['#f9a8d4', '#c084fc'],
+    accent: '#f9a8d4',
+    suggestions: [
+      'Another year, a thousand memories, and still my favorite person. 💞',
+      'Cheers to us — to the laughter, the fights we survived, and the love that won. 🥂',
+      'Growing with you is my favorite adventure. Happy Anniversary. 🌹',
+      'Every love story is beautiful, but ours keeps getting better. ✨',
+    ],
+  },
+  {
+    id: 'thankyou',
+    name: 'Thank You',
+    emoji: '🙏',
+    tagline: 'Gratitude, delivered beautifully',
+    gradient: ['#34d399', '#0ea5e9'],
+    accent: '#34d399',
+    suggestions: [
+      'Thank you for being there when it mattered most. 🙏',
+      'Your kindness didn’t go unnoticed — it changed my whole week. 💚',
+      'Some people make the world softer. You’re one of them. 🌿',
+      'I don’t say it enough, but thank you — for everything. ✨',
+    ],
+  },
+  {
+    id: 'sorry',
+    name: 'Sorry',
+    emoji: '🥺',
+    tagline: 'Mend things, gently',
+    gradient: ['#93c5fd', '#818cf8'],
+    accent: '#93c5fd',
+    suggestions: [
+      'I messed up, and I’m sorry. You matter more than my ego. 🥺',
+      'Can we press rewind? I’d do it differently this time. 💙',
+      'Sorry doesn’t fix it alone, but I’m ready to do the fixing. 🌧️',
+      'No excuses — just a sincere sorry, and a promise to be better. 🙏',
+    ],
+  },
+  {
+    id: 'good-morning',
+    name: 'Good Morning',
+    emoji: '🌅',
+    tagline: 'Start their day with sunshine',
+    gradient: ['#fcd34d', '#fb923c'],
+    accent: '#fcd34d',
+    suggestions: [
+      'Good morning! The world is luckier today because you’re in it. 🌅',
+      'Rise and shine — your coffee and your dreams are both waiting. ☕',
+      'Sending you a pocketful of sunshine for the day ahead. ☀️',
+      'May your day be as bright as the smile you left on mine. 😊',
+    ],
+  },
+  {
+    id: 'good-night',
+    name: 'Good Night',
+    emoji: '🌙',
+    tagline: 'A starlit send-off to sleep',
+    gradient: ['#818cf8', '#312e81'],
+    accent: '#818cf8',
+    suggestions: [
+      'Good night. I’ve asked the stars to watch over you. 🌙',
+      'Sleep well — tomorrow is another chance to be amazing. ✨',
+      'May your dreams be soft and your morning be kind. 💫',
+      'The moon is just the sun’s night-shift reminder that you are loved. 🌛',
+    ],
+  },
+  {
+    id: 'special',
+    name: 'Special Message',
+    emoji: '💌',
+    tagline: 'Something only they should see',
+    gradient: ['#c084fc', '#7c3aed'],
+    accent: '#c084fc',
+    suggestions: [
+      'This is between you and me — a secret wrapped in starlight. 💌',
+      'There’s something I’ve been meaning to tell you… ✨',
+      'You deserve to know how rare you are. This is my way of saying it. 💜',
+      'Not every message needs an occasion. This one just needed you. 🌌',
+    ],
+  },
+  {
+    id: 'festival',
+    name: 'Festival',
+    emoji: '🪔',
+    tagline: 'Diwali, Eid, Christmas & more',
+    gradient: ['#fbbf24', '#ef4444'],
+    accent: '#fbbf24',
+    suggestions: [
+      'May this festival fill your home with light and your heart with joy. 🪔',
+      'Wishing you a celebration as colorful as you make our lives. 🎆',
+      'Lights, sweets and smiles — may you have all three in abundance. ✨',
+      'Happy festivities! May the season bring you peace and new beginnings. 🌟',
+    ],
+  },
+  {
+    id: 'custom',
+    name: 'Custom',
+    emoji: '🎨',
+    tagline: 'Your imagination, no rules',
+    gradient: ['#2dd4bf', '#8b5cf6'],
+    accent: '#2dd4bf',
+    suggestions: [
+      'Just because you exist, the world feels a little better. 🎨',
+      'No occasion needed to remind you that you’re awesome. ✨',
+      'This is a surprise with no label — unwrapping is the fun part. 🎁',
+      'A little magic, sent your way, for absolutely no reason at all. 💫',
+    ],
+  },
+]
+
+export const OCCASION_MAP: Record<OccasionId, Occasion> = Object.fromEntries(
+  OCCASIONS.map((o) => [o.id, o]),
+) as Record<OccasionId, Occasion>
+
+export function getOccasion(id: OccasionId | string | undefined | null): Occasion {
+  return OCCASION_MAP[(id ?? 'custom') as OccasionId] ?? OCCASION_MAP.custom
+}

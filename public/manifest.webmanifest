@@ -1,0 +1,71 @@
+{
+  "name": "NxK Greetings — Cinematic Personalized Greetings",
+  "short_name": "NxK Greetings",
+  "description": "Create beautiful personalized greetings they will never forget: cinematic scenes, particles, music and a unique shareable link. Free forever, by NxK Developer.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
+  "background_color": "#0b0616",
+  "theme_color": "#0b0616",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["entertainment", "social", "lifestyle"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Create a greeting",
+      "short_name": "Create",
+      "description": "Start a new cinematic greeting",
+      "url": "/create",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Watch the demo",
+      "short_name": "Demo",
+      "description": "Play the sample greeting for Aarav",
+      "url": "/demo",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "My dashboard",
+      "short_name": "Dashboard",
+      "description": "Your greetings, stats and settings",
+      "url": "/dashboard",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ]
+}
