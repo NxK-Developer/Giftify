@@ -1,0 +1,215 @@
+rules_version = '2';
+
+/**
+ * NxK Greetings — Cloud Firestore security rules.
+ *
+ * Principles:
+ *  • No `allow true` anywhere. Every permission is a condition; anything not
+ *    listed is denied by default.
+ *  • Admin = `users/{uid}.role == 'admin'`, checked SERVER-SIDE on every
+ *    admin operation. No client call can grant or escalate a role: create
+ *    forces role == 'user', and self-updates may never change `role`.
+ *  • Counters (views/shares/greetingCount) may only move by exactly ±1 per
+ *    write, through `increment()`-shaped diffs — a tampered client cannot set
+ *    them to arbitrary numbers.
+ *  • Field-level validation mirrors src/constants/limits.ts so an edited
+ *    bundle cannot write oversized or malformed documents.
+ *  • Private greetings are unreadable by anyone but owner/admin; disabled
+ *    greetings disappear for recipients (they surface as "not found").
+ */
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /* ----------------------------- helpers ----------------------------- */
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function profileOf(uid) {
+      return get(/databases/$(database)/documents/users/$(uid));
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && profileOf(request.auth.uid) != null
+        && profileOf(request.auth.uid).data.role == 'admin';
+    }
+
+    function str(v, maxLen) {
+      return v is string && v.size() <= maxLen;
+    }
+
+    function strRange(v, minLen, maxLen) {
+      return v is string && v.size() >= minLen && v.size() <= maxLen;
+    }
+
+    /* ------------------------------ users ------------------------------ */
+
+    match /users/{uid} {
+      allow get: if isSelf(uid) || isAdmin();
+      allow list: if isAdmin();
+
+      // Profiles are created by the app right after sign-up / guest link.
+      // The client can NEVER pick its own role.
+      allow create: if isSelf(uid)
+        && request.resource.data.role == 'user'
+        && request.resource.data.greetingCount == 0
+        && (request.resource.data.displayName == null
+            || str(request.resource.data.displayName, 60))
+        && (request.resource.data.email == null || request.resource.data.email is string)
+        && request.resource.data.createdAt is timestamp;
+
+      // Self service: rename yourself, keep counters moving by ±1 (the
+      // create/delete greeting flows bump greetingCount). Admins may manage
+      // any profile (that is how roles are granted/revoked).
+      allow update: if isAdmin()
+        || (isSelf(uid)
+          && request.resource.data.role == resource.data.role
+          && (request.resource.data.displayName == null
+              || str(request.resource.data.displayName, 60))
+          && request.resource.data.greetingCount >= resource.data.greetingCount - 1
+          && request.resource.data.greetingCount <= resource.data.greetingCount + 1);
+
+      // Only an admin can delete an account document.
+      allow delete: if isAdmin();
+    }
+
+    /* ---------------------------- greetings ---------------------------- */
+
+    match /greetings/{greetingId} {
+
+      function isOwner() {
+        return isSignedIn() && resource.data.ownerId == request.auth.uid;
+      }
+
+      function isRecipientReadable() {
+        return resource.data.status == 'active'
+          && resource.data.privacy != 'private';
+      }
+
+      function validId() {
+        return greetingId.matches('^[A-Za-z0-9]{4,16}$');
+      }
+
+      function validCreate(d) {
+        return d.ownerId == request.auth.uid
+          && d.status == 'active'
+          && d.privacy in ['public', 'unlisted', 'private']
+          && d.views == 0
+          && d.shares == 0
+          && strRange(d.recipientName, 1, 40)
+          && str(d.senderName, 40)
+          && str(d.nickname, 24)
+          && str(d.relationship, 30)
+          && str(d.specialDate, 24)
+          && strRange(d.message, 1, 1000)
+          && str(d.occasion, 32)
+          && str(d.templateId, 48)
+          && str(d.theme, 32)
+          && str(d.animation, 32)
+          && str(d.music, 32)
+          && (d.passwordHash == null || str(d.passwordHash, 256))
+          && (d.passwordSalt == null || str(d.passwordSalt, 256))
+          && (d.scheduledAt == null || d.scheduledAt is timestamp)
+          && (d.expiresAt == null || d.expiresAt is timestamp)
+          && d.createdAt is timestamp
+          && d.updatedAt is timestamp
+          && validId();
+      }
+
+      // Recipient telemetry: exactly +1 view (+ heartbeat field), nothing else.
+      function isViewBump() {
+        return resource.data.status == 'active'
+          && request.resource.data.diff(resource.data)
+               .affectedKeys().hasOnly(['views', 'lastViewedAt'])
+          && request.resource.data.views == resource.data.views + 1;
+      }
+
+      function isShareBump() {
+        return resource.data.status == 'active'
+          && request.resource.data.diff(resource.data)
+               .affectedKeys().hasOnly(['shares'])
+          && request.resource.data.shares == resource.data.shares + 1;
+      }
+
+      // Owner editing content/settings — ownership, counters, status and
+      // creation time are frozen; lengths re-validated server-side.
+      function isOwnerEdit() {
+        return isOwner()
+          && request.resource.data.ownerId == resource.data.ownerId
+          && request.resource.data.views == resource.data.views
+          && request.resource.data.shares == resource.data.shares
+          && request.resource.data.status == resource.data.status
+          && request.resource.data.createdAt == resource.data.createdAt
+          && request.resource.data.privacy in ['public', 'unlisted', 'private']
+          && strRange(request.resource.data.recipientName, 1, 40)
+          && strRange(request.resource.data.message, 1, 1000)
+          && str(request.resource.data.senderName, 40)
+          && str(request.resource.data.nickname, 24)
+          && str(request.resource.data.relationship, 30)
+          && str(request.resource.data.specialDate, 24);
+      }
+
+      // Recipients fetch a single greeting by id; owners/admins always can.
+      allow get: if isAdmin() || isOwner() || isRecipientReadable();
+
+      // Lists are private surfaces: your own dashboard, or the admin panel.
+      allow list: if isAdmin()
+        || (isSignedIn() && resource.data.ownerId == request.auth.uid);
+
+      allow create: if isSignedIn() && validCreate(request.resource.data);
+
+      allow update: if isAdmin() || isViewBump() || isShareBump() || isOwnerEdit();
+
+      allow delete: if isAdmin() || isOwner();
+    }
+
+    /* ----------------------------- reports ----------------------------- */
+
+    match /reports/{reportId} {
+      // Anyone (including a signed-out recipient) can file a report, but the
+      // document shape is fixed and the status starts as 'pending'.
+      allow create: if request.resource.data.status == 'pending'
+        && request.resource.data.reason in ['spam', 'harassment', 'inappropriate', 'abuse', 'other']
+        && request.resource.data.greetingId.matches('^[A-Za-z0-9]{4,16}$')
+        && str(request.resource.data.details, 400)
+        && (request.resource.data.reporterUid == null
+            || (isSignedIn() && request.resource.data.reporterUid == request.auth.uid))
+        && request.resource.data.createdAt is timestamp;
+
+      // Reports are moderator-only content (they carry reporter identities).
+      allow get, list: if isAdmin();
+
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+        && request.resource.data.status in ['pending', 'reviewed', 'dismissed'];
+
+      allow delete: if isAdmin();
+    }
+
+    /* ----------------------- templates & themes ------------------------ */
+    // Bundled configs get optional Firestore overrides so admins can disable
+    // a template without redeploying. Public reads are limited to well-formed
+    // override documents; writes are admin-only.
+
+    match /templates/{templateId} {
+      allow get, list: if resource.data.get('enabled', true) is bool;
+      allow write: if isAdmin()
+        && request.resource.data.keys().hasOnly(['enabled', 'updatedAt'])
+        && request.resource.data.enabled is bool;
+    }
+
+    match /themes/{themeId} {
+      allow get, list: if resource.data.get('enabled', true) is bool;
+      allow write: if isAdmin()
+        && request.resource.data.keys().hasOnly(['enabled', 'updatedAt'])
+        && request.resource.data.enabled is bool;
+    }
+  }
+}
